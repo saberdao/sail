@@ -5,11 +5,11 @@ import { useDebouncedCallback } from "use-debounce";
 import type { FetchKeysFn } from "..";
 import {
   fetchKeysMaybe,
-  getCacheKeyOfPublicKey,
   SailCacheRefetchError,
   useAccountsSubscribe,
   useSail,
 } from "..";
+import { getCacheKeyOfPublicKey } from "../accounts/utils";
 import type { AccountDatum } from "../types";
 
 const loadKeysFromCache = (

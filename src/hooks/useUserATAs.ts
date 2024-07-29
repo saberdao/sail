@@ -1,6 +1,6 @@
 import type { Token } from "@saberhq/token-utils";
 import { getATAAddress, RAW_SOL_MINT, TokenAmount } from "@saberhq/token-utils";
-import { useConnectedWallet } from "@saberhq/use-solana";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import type { PublicKey } from "@solana/web3.js";
 import { useMemo } from "react";
 import { useQuery } from "react-query";
@@ -137,7 +137,7 @@ export type _TupleOf<
 export const useUserATAs = <N extends number>(
   ...tokens: Tuple<Token | null | undefined, N>
 ): Tuple<AssociatedTokenAccount | null | undefined, N> => {
-  const wallet = useConnectedWallet();
+  const wallet = useAnchorWallet();
   const atasList = useATAs(wallet?.publicKey, tokens);
   if (!atasList) {
     return tokens.map(() => atasList) as Tuple<

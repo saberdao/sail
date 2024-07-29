@@ -4,7 +4,6 @@ import type {
   TransactionEnvelope,
 } from "@saberhq/solana-contrib";
 import { mapN } from "@saberhq/solana-contrib";
-import { useSolana } from "@saberhq/use-solana";
 import type { ConfirmOptions, Finality, Transaction } from "@solana/web3.js";
 import { useCallback } from "react";
 import type { OperationOptions } from "retry";
@@ -53,6 +52,8 @@ export interface UseHandleTXsArgs extends Pick<UseAccounts, "refetchMany"> {
    * Delay for the writable accounts to be refetched into the cache after a transaction.
    */
   txRefetchDelayMs?: number;
+
+  network?: Network;
 
   /**
    * Called right before a {@link TransactionEnvelope} is sent.
@@ -173,9 +174,8 @@ export const useHandleTXsInternal = ({
   onError,
   txRefetchDelayMs = 1_000,
   waitForConfirmation = false,
+  network = "mainnet-beta",
 }: UseHandleTXsArgs): UseHandleTXs => {
-  const { network } = useSolana();
-
   const handleTXs = useCallback(
     async (
       txs: readonly TransactionEnvelope[],

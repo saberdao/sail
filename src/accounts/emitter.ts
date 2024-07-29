@@ -2,7 +2,7 @@ import type { PublicKey } from "@solana/web3.js";
 import { EventEmitter as Emitter } from "eventemitter3";
 import { startTransition } from "react";
 
-import { getCacheKeyOfPublicKey } from ".";
+import { getCacheKeyOfPublicKey } from "./utils";
 
 /**
  * Emitted when the cache is updated.

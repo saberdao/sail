@@ -1,6 +1,4 @@
 import type { ProgramAccount } from "@coral-xyz/anchor";
-import type { Network } from "@saberhq/solana-contrib";
-import { useSolana } from "@saberhq/use-solana";
 import type { PublicKey } from "@solana/web3.js";
 import { useEffect, useMemo } from "react";
 import type { UseQueryOptions, UseQueryResult } from "react-query";
@@ -40,7 +38,6 @@ export const useParsedAccounts = <T>(
     "queryFn" | "queryKey"
   > = {},
 ): ParsedAccountQueryResult<T>[] => {
-  const { network } = useSolana();
   const data = useAccountsData(keys);
   return useQueries(
     keys.map(
@@ -49,7 +46,6 @@ export const useParsedAccounts = <T>(
         return {
           queryKey: [
             "sail/parsedAccount",
-            network,
             parser.programID.toString(),
             parser.name,
             key ? key.toString() : key,
@@ -83,7 +79,6 @@ export const useParsedAccounts = <T>(
  */
 export const makeParsedAccountQuery = <T>(
   key: PublicKey | null | undefined,
-  network: Network,
   fetchKeys: FetchKeysFn,
   parser: ProgramAccountParser<T>,
   options: Omit<
@@ -93,7 +88,6 @@ export const makeParsedAccountQuery = <T>(
 ): UseQueryOptions<ProgramAccount<T> | null | undefined> => ({
   queryKey: [
     "sail/parsedAccount",
-    network,
     parser.programID.toString(),
     parser.name,
     key ? key.toString() : key,
@@ -139,10 +133,9 @@ export const useParsedAccount = <T>(
   > = {},
 ): ParsedAccountQueryResult<T> => {
   const { fetchKeys, onBatchCache } = useSail();
-  const { network } = useSolana();
 
   const query = useQuery(
-    makeParsedAccountQuery(key, network, fetchKeys, parser, options),
+    makeParsedAccountQuery(key, fetchKeys, parser, options),
   );
 
   useAccountsSubscribe(useMemo(() => [key], [key]));

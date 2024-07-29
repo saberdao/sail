@@ -1,10 +1,7 @@
+import type { Network } from "@saberhq/solana-contrib";
 import { mapN } from "@saberhq/solana-contrib";
 import { RAW_SOL, TokenAmount } from "@saberhq/token-utils";
-import {
-  useConnectedWallet,
-  useConnectionContext,
-  useSolana,
-} from "@saberhq/use-solana";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import type { AccountInfo, PublicKey } from "@solana/web3.js";
 import { useCallback, useMemo } from "react";
 
@@ -17,8 +14,8 @@ import { useParsedAccountData } from "./parsers/useParsedAccountsData";
  */
 export const useSOLBalance = (
   accountId?: PublicKey | null | undefined,
+  network: Network = "mainnet-beta",
 ): TokenAmount | null | undefined => {
-  const { network } = useSolana();
   const sol = RAW_SOL[network];
   const parser: AccountParser<TokenAmount> = useCallback(
     (data) => {
@@ -38,12 +35,12 @@ export const useSOLBalance = (
  * @deprecated use {@link useSOLBalance} instead
  * @returns
  */
-export function useNativeAccount(): {
+export function useNativeAccount(network: Network = "mainnet-beta"): {
   account?: AccountInfo<TokenAmount> | null;
   nativeBalance?: TokenAmount | undefined;
+  network?: Network;
 } {
-  const wallet = useConnectedWallet();
-  const { network } = useConnectionContext();
+  const wallet = useAnchorWallet();
   const sol = RAW_SOL[network];
   const parser: AccountParser<TokenAmount> = useCallback(
     (data) => {

@@ -1,6 +1,6 @@
 {
-  "name": "@saberhq/sail",
-  "version": "4.1.0",
+  "name": "@saberdao/sail",
+  "version": "5.0.0",
   "description": "Account caching and batched loading for React-based Solana applications.",
   "exports": {
     ".": {
@@ -14,8 +14,8 @@
     "react",
     "saber"
   ],
-  "author": "Ian Macalinao <ian@saber.so>",
-  "homepage": "https://sail.saber.so",
+  "author": "Rockooor <not@available.com>",
+  "homepage": "https://saberdao.io",
   "license": "Apache-2.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -26,13 +26,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "bugs": {
-    "url": "https://github.com/saber-hq/sail/issues",
-    "email": "ian@saber.so"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/saber-hq/sail.git"
+    "url": "git+https://github.com/saberdao/sail"
   },
   "scripts": {
     "build": "tsc && tsc --project tsconfig.cjs.json",
@@ -41,7 +37,7 @@
     "lint:ci": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "docs:generate": "typedoc --excludePrivate --includeVersion --out site/ts/ src/index.ts",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.29.0",
@@ -51,8 +47,7 @@
     "@saberhq/solana-contrib": "^2.0.0",
     "@saberhq/token-utils": "^2.0.0",
     "@saberhq/tsconfig": "^3.2.1",
-    "@saberhq/use-solana": "^2.0.0",
-    "@solana/web3.js": "^1.91.1",
+    "@solana/web3.js": "^1.95.2",
     "@types/bn.js": "^5.1.5",
     "@types/lodash.chunk": "^4.2.9",
     "@types/lodash.mapvalues": "^4.6.9",
@@ -93,7 +88,7 @@
     "@saberhq/anchor-contrib": "^1.13",
     "@saberhq/solana-contrib": "^1.13",
     "@saberhq/token-utils": "^1.13",
-    "@saberhq/use-solana": "^1.13",
+    "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/web3.js": "^1.44.2",
     "bn.js": "^5.2.1",
     "jsbi": "^3 || ^4",
@@ -101,9 +96,9 @@
     "react-dom": "^18",
     "react-query": "^3"
   },
-  "packageManager": "yarn@4.1.1",
   "lint-staged": {
     "*.{ts,tsx}": "eslint --cache --fix",
     "*.{json,js,jsx,html,css,md,yml,yaml}": "prettier --write"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

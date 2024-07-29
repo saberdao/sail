@@ -1,4 +1,4 @@
-import { useSolana } from "@saberhq/use-solana";
+import { useConnection } from "@solana/wallet-adapter-react";
 import { useQuery } from "react-query";
 
 /**
@@ -6,8 +6,8 @@ import { useQuery } from "react-query";
  * @returns
  */
 export const useNetworkTPS = () => {
-  const { network, connection } = useSolana();
-  return useQuery(["networkTps", network], async () => {
+  const { connection } = useConnection();
+  return useQuery(["networkTps"], async () => {
     const performanceSamples = await connection.getRecentPerformanceSamples(15);
     const avgTpsSamples = performanceSamples
       .filter((sample) => sample.numTransactions !== 0)

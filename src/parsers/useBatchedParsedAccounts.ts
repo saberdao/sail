@@ -1,6 +1,4 @@
-import type { Network } from "@saberhq/solana-contrib";
 import type { ProgramAccount } from "@saberhq/token-utils";
-import { useSolana } from "@saberhq/use-solana";
 import type { PublicKey } from "@solana/web3.js";
 import { useEffect } from "react";
 import type { UseQueryOptions, UseQueryResult } from "react-query";
@@ -41,7 +39,6 @@ export type BatchedParsedAccountQueryData<T> =
 
 export const makeBatchedParsedAccountQuery = <T>(
   keys: BatchedParsedAccountQueryKeys,
-  network: Network,
   fetchKeys: FetchKeysFn,
   parser: ProgramAccountParser<T>,
   options: Omit<
@@ -51,7 +48,6 @@ export const makeBatchedParsedAccountQuery = <T>(
 ): UseQueryOptions<BatchedParsedAccountQueryData<T>> => ({
   queryKey: [
     "sail/batchedParsedAccounts",
-    network,
     ...(keys ? serializeKeys(keys) : keys === null ? ["null"] : ["undefined"]),
   ],
   queryFn: async (): Promise<BatchedParsedAccountQueryData<T>> => {
@@ -99,10 +95,9 @@ export const useBatchedParsedAccounts = <T>(
   > = {},
 ): BatchParsedAccountQueryResult<T> => {
   const { fetchKeys, onBatchCache } = useSail();
-  const { network } = useSolana();
 
   const query = useQuery(
-    makeBatchedParsedAccountQuery(keys, network, fetchKeys, parser, options),
+    makeBatchedParsedAccountQuery(keys, fetchKeys, parser, options),
   );
 
   useAccountsSubscribe(keys);

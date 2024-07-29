@@ -5,7 +5,8 @@ import zip from "lodash.zip";
 import { startTransition, useEffect, useMemo, useState } from "react";
 
 import type { ParserHooks } from "..";
-import { getCacheKeyOfPublicKey, SailAccountParseError, useSail } from "..";
+import { SailAccountParseError, useSail } from "..";
+import { getCacheKeyOfPublicKey } from "../accounts/utils";
 import { useAccountsData } from "../hooks/useAccountsData";
 import type { ParsedAccountDatum } from "../types";
 

@@ -1,27 +1,20 @@
-import type { AccountInfoFetcher, Provider } from "@saberhq/solana-contrib";
+import type { AccountInfoFetcher } from "@saberhq/solana-contrib";
 import { exists } from "@saberhq/solana-contrib";
-import { useSolana } from "@saberhq/use-solana";
-import type { AccountInfo, ClientSubscriptionId } from "@solana/web3.js";
+import { useConnection } from "@solana/wallet-adapter-react";
+import type { AccountInfo } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import DataLoader from "dataloader";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { AccountFetchResult, SailError } from "..";
-import { SailRefetchSubscriptionsError } from "..";
-import type { AccountDatum } from "../types";
-import { SailBatchFetcher, SailBatchProvider } from "./batchProvider";
+import type { SailError } from "../errors";
+import { SailRefetchSubscriptionsError } from "../errors";
+import type { AccountDatum, AccountFetchResult } from "../types";
+import { SailBatchFetcher } from "./batchProvider";
 import type { CacheBatchUpdateEvent } from "./emitter";
 import { AccountsEmitter } from "./emitter";
 import { getMultipleAccounts } from "./fetchers";
 import { fetchKeysUsingLoader } from "./fetchKeysUsingLoader";
-
-/**
- * Gets the cache key associated with the given pubkey.
- * @param pubkey
- * @returns
- */
-export const getCacheKeyOfPublicKey = (pubkey: PublicKey): string =>
-  pubkey.toString();
+import { getCacheKeyOfPublicKey } from "./utils";
 
 export type AccountLoader = DataLoader<
   PublicKey,
@@ -93,6 +86,7 @@ export const fetchKeysMaybe = async (
     | null
     | undefined
   )[];
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   nonEmptyKeysWithIndex.forEach(([_, originalIndex], i) => {
     result[originalIndex] = accountsData[i];
   });
@@ -151,11 +145,6 @@ export interface UseAccounts extends Required<UseAccountsArgs> {
    * Fetches accounts.
    */
   batchFetcher: AccountInfoFetcher;
-
-  /**
-   * Provider using the batch fetcher.
-   */
-  batchProviderMut: Provider | null;
 }
 
 export const useAccountsInternal = (args: UseAccountsArgs): UseAccounts => {
@@ -166,7 +155,7 @@ export const useAccountsInternal = (args: UseAccountsArgs): UseAccounts => {
     useWebsocketAccountUpdates = false,
     disableAutoRefresh: disableRefresh = false,
   } = args;
-  const { network, connection, providerMut } = useSolana();
+  const { connection } = useConnection();
 
   // Cache of accounts
   const [{ accountsCache, emitter, subscribedAccounts }, setState] =
@@ -181,7 +170,7 @@ export const useAccountsInternal = (args: UseAccountsArgs): UseAccounts => {
       return newState();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [network]);
+  }, [connection]);
 
   const accountLoader = useMemo(
     () =>
@@ -214,14 +203,11 @@ export const useAccountsInternal = (args: UseAccountsArgs): UseAccounts => {
     [accountsCache, batchDurationMs, connection, emitter, onError],
   );
 
-  const { batchFetcher, batchProviderMut } = useMemo(() => {
+  const { batchFetcher } = useMemo(() => {
     return {
       batchFetcher: new SailBatchFetcher(accountLoader),
-      batchProviderMut: providerMut
-        ? new SailBatchProvider(providerMut, accountLoader)
-        : null,
     };
-  }, [providerMut, accountLoader]);
+  }, [accountLoader]);
 
   const fetchKeys = useCallback(
     async (keys: readonly PublicKey[]) => {
@@ -269,7 +255,7 @@ export const useAccountsInternal = (args: UseAccountsArgs): UseAccounts => {
         subscribedAccounts.set(keyStr, amount + 1);
       }
 
-      let listener: ClientSubscriptionId | null = null;
+      let listener: number | null = null;
       if (useWebsocketAccountUpdates) {
         listener = connection.onAccountChange(key, (data) => {
           const cacheKey = getCacheKeyOfPublicKey(key);
@@ -358,6 +344,5 @@ export const useAccountsInternal = (args: UseAccountsArgs): UseAccounts => {
     onError,
 
     batchFetcher,
-    batchProviderMut,
   };
 };

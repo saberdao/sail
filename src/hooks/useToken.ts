@@ -2,7 +2,6 @@ import type { Network } from "@saberhq/solana-contrib";
 import { mapSome } from "@saberhq/solana-contrib";
 import type { TokenInfo } from "@saberhq/token-utils";
 import { deserializeMint, networkToChainId, Token } from "@saberhq/token-utils";
-import { useSolana } from "@saberhq/use-solana";
 import { PublicKey } from "@solana/web3.js";
 import { useMemo } from "react";
 import type { UseQueryOptions } from "react-query";
@@ -60,10 +59,13 @@ const makeCertifiedTokenQuery = (
 /**
  * Loads multiple tokens from the Certified Token List.
  * @param mint
+ * @param network
  * @returns
  */
-export const useCertifiedTokens = (mints: (string | null | undefined)[]) => {
-  const { network } = useSolana();
+export const useCertifiedTokens = (
+  mints: (string | null | undefined)[],
+  network: Network = "mainnet-beta",
+) => {
   return useQueries(
     mints.map((mint) => makeCertifiedTokenQuery(network, mint)),
   );
@@ -72,10 +74,13 @@ export const useCertifiedTokens = (mints: (string | null | undefined)[]) => {
 /**
  * Loads a token from the Certified Token List.
  * @param mint
+ * @param network
  * @returns
  */
-export const useCertifiedToken = (mint: string | null | undefined) => {
-  const { network } = useSolana();
+export const useCertifiedToken = (
+  mint: string | null | undefined,
+  network: Network = "mainnet-beta",
+) => {
   return useQuery(makeCertifiedTokenQuery(network, mint));
 };
 
@@ -219,8 +224,10 @@ const useNormalizedMints = (
  * @param mints
  * @returns
  */
-export const useTokens = (mints?: (PublicKey | null | undefined)[]) => {
-  const { network } = useSolana();
+export const useTokens = (
+  mints?: (PublicKey | null | undefined)[],
+  network: Network = "mainnet-beta",
+) => {
   const { fetchKeys } = useSail();
   const normalizedMints = useNormalizedMints(mints);
   return useQueries(
@@ -239,8 +246,10 @@ export const useTokens = (mints?: (PublicKey | null | undefined)[]) => {
  * @param mints
  * @returns
  */
-export const useBatchedTokens = (mints: BatchedParsedAccountQueryKeys) => {
-  const { network } = useSolana();
+export const useBatchedTokens = (
+  mints: BatchedParsedAccountQueryKeys,
+  network: Network = "mainnet-beta",
+) => {
   const { fetchKeys } = useSail();
   const normalizedMints = useNormalizedMints(mints);
   return useQuery(
@@ -258,9 +267,11 @@ export const useBatchedTokens = (mints: BatchedParsedAccountQueryKeys) => {
  * @param mint
  * @returns
  */
-export const useToken = (mintRaw?: PublicKey | string | null) => {
+export const useToken = (
+  mintRaw?: PublicKey | string | null,
+  network: Network = "mainnet-beta",
+) => {
   const mint = usePubkey(mintRaw);
-  const { network } = useSolana();
   const { fetchKeys } = useSail();
   const normalizedMint = useMemo(() => mapSome(mint, normalizeMint), [mint]);
   return useQuery(
