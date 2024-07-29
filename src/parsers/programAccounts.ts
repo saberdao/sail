@@ -19,7 +19,7 @@ export type ProgramAccountParser<T> = {
   /**
    * Function which parses the account.
    */
-  parse: (data: Buffer) => T;
+  parse: (data: Buffer, accountId?: PublicKey) => T;
 };
 
 export interface ProgramAccountParsers<M> {

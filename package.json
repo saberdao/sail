@@ -1,5 +1,5 @@
 {
-  "name": "@saberdao/sail",
+  "name": "@rockooor/sail",
   "version": "5.0.0",
   "description": "Account caching and batched loading for React-based Solana applications.",
   "exports": {
@@ -36,8 +36,7 @@
     "lint": "eslint . --cache",
     "lint:ci": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "docs:generate": "typedoc --excludePrivate --includeVersion --out site/ts/ src/index.ts",
-    "prepare": "husky"
+    "docs:generate": "typedoc --excludePrivate --includeVersion --out site/ts/ src/index.ts"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.29.0",
