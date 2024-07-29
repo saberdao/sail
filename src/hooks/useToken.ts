@@ -3,9 +3,9 @@ import { mapSome } from "@saberhq/solana-contrib";
 import type { TokenInfo } from "@saberhq/token-utils";
 import { deserializeMint, networkToChainId, Token } from "@saberhq/token-utils";
 import { PublicKey } from "@solana/web3.js";
+import type { UseQueryOptions } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import type { UseQueryOptions } from "react-query";
-import { useQueries, useQuery } from "react-query";
 
 import type { FetchKeysFn } from "..";
 import { fetchNullableWithSessionCache } from "..";
@@ -66,9 +66,9 @@ export const useCertifiedTokens = (
   mints: (string | null | undefined)[],
   network: Network = "mainnet-beta",
 ) => {
-  return useQueries(
-    mints.map((mint) => makeCertifiedTokenQuery(network, mint)),
-  );
+  return useQueries({
+    queries: mints.map((mint) => makeCertifiedTokenQuery(network, mint)),
+  });
 };
 
 /**
@@ -230,15 +230,15 @@ export const useTokens = (
 ) => {
   const { fetchKeys } = useSail();
   const normalizedMints = useNormalizedMints(mints);
-  return useQueries(
-    normalizedMints.map((mint) => {
+  return useQueries({
+    queries: normalizedMints.map((mint) => {
       return makeTokenQuery({
         network,
         address: mint,
         fetchKeys,
       });
     }),
-  );
+  });
 };
 
 /**

@@ -2,8 +2,8 @@ import type { Token } from "@saberhq/token-utils";
 import { getATAAddress, RAW_SOL_MINT, TokenAmount } from "@saberhq/token-utils";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import type { PublicKey } from "@solana/web3.js";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useQuery } from "react-query";
 
 import { useSOLBalance } from "../native";
 import { useBatchedTokenAccounts } from "../parsers/splHooks";
@@ -52,13 +52,13 @@ export const useATAs = (
     [JSON.stringify(tokens.map((tok) => tok?.mintAccount.toString()))],
   );
 
-  const { data: userATAKeys } = useQuery(
-    [
+  const { data: userATAKeys } = useQuery({
+    queryKey: [
       "userATAKeys",
       owner?.toString(),
       ...memoTokens.map((tok) => tok?.address),
     ],
-    async () => {
+    queryFn: async () => {
       return await Promise.all(
         memoTokens.map(async (token) => {
           if (!token) {
@@ -80,10 +80,8 @@ export const useATAs = (
         }),
       );
     },
-    {
-      staleTime: Infinity,
-    },
-  );
+    staleTime: Infinity,
+  });
   const { data: atas } = useBatchedTokenAccounts(userATAKeys);
 
   return useMemo(() => {

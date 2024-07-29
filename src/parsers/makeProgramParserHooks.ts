@@ -1,7 +1,6 @@
 import type { ProgramAccount } from "@saberhq/token-utils";
 import type { PublicKey } from "@solana/web3.js";
 import mapValues from "lodash.mapvalues";
-import type { UseQueryOptions } from "react-query";
 
 import type {
   ProgramAccountParser,
@@ -16,6 +15,7 @@ import type {
 import { useBatchedParsedAccounts } from "./useBatchedParsedAccounts";
 import type { ParsedAccountQueryResult } from "./useParsedAccount";
 import { useParsedAccount, useParsedAccounts } from "./useParsedAccount";
+import { UseQueryOptions } from "@tanstack/react-query";
 
 /**
  * React hooks for program account parsers.

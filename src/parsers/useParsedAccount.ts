@@ -1,8 +1,8 @@
 import type { ProgramAccount } from "@coral-xyz/anchor";
 import type { PublicKey } from "@solana/web3.js";
+import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
-import type { UseQueryOptions, UseQueryResult } from "react-query";
-import { useQueries, useQuery } from "react-query";
 
 import type { FetchKeysFn } from "..";
 import {
@@ -39,8 +39,8 @@ export const useParsedAccounts = <T>(
   > = {},
 ): ParsedAccountQueryResult<T>[] => {
   const data = useAccountsData(keys);
-  return useQueries(
-    keys.map(
+  return useQueries({
+    queries: keys.map(
       (key, i): UseQueryOptions<ProgramAccount<T> | null | undefined> => {
         const datum = data[i];
         return {
@@ -62,11 +62,11 @@ export const useParsedAccounts = <T>(
             }
           },
           enabled: key !== undefined && datum !== undefined,
-          ...options,
         };
       },
     ),
-  );
+    ...options,
+  });
 };
 
 /**

@@ -1,8 +1,8 @@
 import type { ProgramAccount } from "@saberhq/token-utils";
 import type { PublicKey } from "@solana/web3.js";
+import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import type { UseQueryOptions, UseQueryResult } from "react-query";
-import { useQuery } from "react-query";
 
 import type { FetchKeysFn } from "..";
 import {
