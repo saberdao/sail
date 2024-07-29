@@ -47,7 +47,7 @@ export const makeProgramAccountParsers = <M, A extends keyof M>({
   return mapValues(
     accountParsers,
     <T>(
-      parser: (data: Buffer) => T,
+      parser: (data: Buffer, accountId?: PublicKey) => T,
       name: string,
     ): ProgramAccountParser<T> => ({
       name,
