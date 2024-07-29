@@ -19,7 +19,7 @@ export type ProgramAccountParser<T> = {
   /**
    * Function which parses the account.
    */
-  parse: (data: Buffer, accountId?: PublicKey) => T;
+  parse: (data: Buffer) => T;
 };
 
 export interface ProgramAccountParsers<M> {
@@ -47,7 +47,7 @@ export const makeProgramAccountParsers = <M, A extends keyof M>({
   return mapValues(
     accountParsers,
     <T>(
-      parser: (data: Buffer, accountId?: PublicKey) => T,
+      parser: (data: Buffer) => T,
       name: string,
     ): ProgramAccountParser<T> => ({
       name,
