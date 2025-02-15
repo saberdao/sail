@@ -197,14 +197,42 @@ export const makeTokenQuery = ({
     if (!tokenData) {
       return null;
     }
+
     if (!tokenData.data) {
       return tokenData.data;
     }
     const raw = tokenData.data.accountInfo.data;
     const parsed = deserializeMint(raw);
-    return Token.fromMint(address, parsed.decimals, {
+    const temp = Token.fromMint(address, parsed.decimals, {
       chainId: networkToChainId(network),
     });
+
+    if (temp?.name.includes("8UWs")) {
+      console.log("pawSOL-SOL LP");
+      return new Token({
+        address: temp.address,
+        name: "Saber pawSOL-SOL LP",
+        symbol: "pawSOL-SOL LP",
+        chainId: 101,
+        decimals: 9,
+        logoURI:
+          "https://arweave.net/y0cJhzhzhCOISBg8s9BnowaWl7R3RuHGcT8P_7HVAew",
+      });
+    }
+
+    if (temp?.name.includes("3ttN")) {
+      return new Token({
+        address: temp.address,
+        name: "Saber swanSOL-SOL LP",
+        symbol: "swanSOL-SOL LP",
+        chainId: 101,
+        decimals: 9,
+        logoURI:
+          "https://arweave.net/i1g7gKqQ_sPLm8Z0TLoDMDeHZnuYqJiWbaCY9AbgFJ0",
+      });
+    }
+
+    return temp;
   },
   // these should never be stale, since token mints are immutable (other than supply)
   staleTime: Infinity,

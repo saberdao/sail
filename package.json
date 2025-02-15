@@ -1,6 +1,6 @@
 {
   "name": "@rockooor/sail",
-  "version": "5.0.6",
+  "version": "5.0.13",
   "description": "Account caching and batched loading for React-based Solana applications.",
   "exports": {
     ".": {
@@ -70,6 +70,7 @@
     "typescript": "~5.3"
   },
   "dependencies": {
+    "@solana/wallet-adapter-react": "^0.15.35",
     "dataloader": "^2.1.0",
     "eventemitter3": "^4.0.7",
     "lodash.chunk": "^4.2.0",
