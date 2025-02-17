@@ -232,6 +232,18 @@ export const makeTokenQuery = ({
       });
     }
 
+    if (temp?.name.includes("47A3")) {
+      return new Token({
+        address: temp.address,
+        name: "Saber swanSOL-bSOL LP",
+        symbol: "swanSOL-bSOL LP",
+        chainId: 101,
+        decimals: 9,
+        logoURI:
+          "https://arweave.net/f43lXypPqQKtao50bWfBHfQTrtGCjd3UBI6ZDish0fo",
+      });
+    }
+
     return temp;
   },
   // these should never be stale, since token mints are immutable (other than supply)
