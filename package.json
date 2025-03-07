@@ -1,6 +1,6 @@
 {
   "name": "@rockooor/sail",
-  "version": "5.0.13",
+  "version": "5.0.15",
   "description": "Account caching and batched loading for React-based Solana applications.",
   "exports": {
     ".": {

@@ -244,6 +244,30 @@ export const makeTokenQuery = ({
       });
     }
 
+    if (temp?.name.includes("78Se")) {
+      return new Token({
+        address: temp.address,
+        name: "Saber broSOL-bSOL LP",
+        symbol: "broSOL-bSOL LP",
+        chainId: 101,
+        decimals: 9,
+        logoURI:
+          "https://arweave.net/990E2dGTvSWn1sAohcg5r9R5zO2JBLOMAg7ryXlzLok",
+      });
+    }
+
+    if (temp?.name.includes("J1AQ")) {
+      return new Token({
+        address: temp.address,
+        name: "Saber sagaSOL-bSOL LP",
+        symbol: "sagaSOL-bSOL LP",
+        chainId: 101,
+        decimals: 9,
+        logoURI:
+          "https://arweave.net/Ww6DntHM7JSVZjKDg3nnh29xmaxZf2-PFU2tZG90js0",
+      });
+    }
+
     return temp;
   },
   // these should never be stale, since token mints are immutable (other than supply)
