@@ -2,6 +2,8 @@ import type { Network } from "@saberhq/solana-contrib";
 import { mapSome } from "@saberhq/solana-contrib";
 import type { TokenInfo } from "@saberhq/token-utils";
 import { deserializeMint, networkToChainId, Token } from "@saberhq/token-utils";
+import { useConnection } from "@solana/wallet-adapter-react";
+import type { Connection } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import type { UseQueryOptions } from "@tanstack/react-query";
 import { useQueries, useQuery } from "@tanstack/react-query";
@@ -9,6 +11,7 @@ import { useMemo } from "react";
 
 import type { FetchKeysFn } from "..";
 import { fetchNullableWithSessionCache } from "..";
+import { decodeMetadata, getMetadataAccount } from "../helpers/metadata";
 import type { BatchedParsedAccountQueryKeys } from "../parsers";
 import { useSail } from "../provider";
 import { makeListMemoKey } from "../utils";
@@ -165,6 +168,39 @@ export const makeBatchedTokensQuery = ({
   staleTime: Infinity,
 });
 
+const getTokenMetadataFromChain = async (
+  connection: Connection,
+  mint: PublicKey,
+) => {
+  try {
+    const metadataAccount = await getMetadataAccount(mint.toString());
+    const metadataAccountInfo = await connection.getAccountInfo(
+      new PublicKey(metadataAccount),
+    );
+    console.log(metadataAccountInfo);
+
+    // finally, decode metadata
+    const data = decodeMetadata(metadataAccountInfo!.data);
+    const info = await connection.getParsedAccountInfo(mint);
+
+    const meta = (await (await fetch(data.data.uri)).json()) as {
+      image: string;
+    };
+    const result = {
+      ...data,
+      ...meta,
+      // @ts-expect-error ignore
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      decimals: info.value?.data.parsed.info.decimals, // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    };
+    console.log(result);
+    return result;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
 /**
  * Constructs a query to load a token from the Certified Token List, or from the blockchain if
  * it cannot be found.
@@ -175,10 +211,12 @@ export const makeTokenQuery = ({
   network,
   address,
   fetchKeys,
+  connection,
 }: {
   network: Network;
   address: PublicKey | null | undefined;
   fetchKeys: FetchKeysFn;
+  connection: Connection;
 }): UseQueryOptions<Token | null | undefined> => ({
   queryKey: ["sail/tokenInfo", network, address?.toString()],
   queryFn: async ({ signal }): Promise<Token | null | undefined> => {
@@ -201,74 +239,28 @@ export const makeTokenQuery = ({
     if (!tokenData.data) {
       return tokenData.data;
     }
+
+    const metadata = await getTokenMetadataFromChain(connection, address);
+
+    console.log(info);
+    if (metadata) {
+      return new Token({
+        address: address.toString(),
+        name: metadata.data.name,
+        symbol: metadata.data.symbol,
+        decimals: metadata.decimals as number,
+        chainId: networkToChainId(network),
+        logoURI: metadata.image,
+      });
+    }
+
     const raw = tokenData.data.accountInfo.data;
     const parsed = deserializeMint(raw);
-    const temp = Token.fromMint(address, parsed.decimals, {
+    const token = Token.fromMint(address, parsed.decimals, {
       chainId: networkToChainId(network),
     });
 
-    if (temp?.name.includes("8UWs")) {
-      console.log("pawSOL-SOL LP");
-      return new Token({
-        address: temp.address,
-        name: "Saber pawSOL-SOL LP",
-        symbol: "pawSOL-SOL LP",
-        chainId: 101,
-        decimals: 9,
-        logoURI:
-          "https://arweave.net/y0cJhzhzhCOISBg8s9BnowaWl7R3RuHGcT8P_7HVAew",
-      });
-    }
-
-    if (temp?.name.includes("3ttN")) {
-      return new Token({
-        address: temp.address,
-        name: "Saber swanSOL-SOL LP",
-        symbol: "swanSOL-SOL LP",
-        chainId: 101,
-        decimals: 9,
-        logoURI:
-          "https://arweave.net/i1g7gKqQ_sPLm8Z0TLoDMDeHZnuYqJiWbaCY9AbgFJ0",
-      });
-    }
-
-    if (temp?.name.includes("47A3")) {
-      return new Token({
-        address: temp.address,
-        name: "Saber swanSOL-bSOL LP",
-        symbol: "swanSOL-bSOL LP",
-        chainId: 101,
-        decimals: 9,
-        logoURI:
-          "https://arweave.net/f43lXypPqQKtao50bWfBHfQTrtGCjd3UBI6ZDish0fo",
-      });
-    }
-
-    if (temp?.name.includes("78Se")) {
-      return new Token({
-        address: temp.address,
-        name: "Saber broSOL-bSOL LP",
-        symbol: "broSOL-bSOL LP",
-        chainId: 101,
-        decimals: 9,
-        logoURI:
-          "https://arweave.net/990E2dGTvSWn1sAohcg5r9R5zO2JBLOMAg7ryXlzLok",
-      });
-    }
-
-    if (temp?.name.includes("J1AQ")) {
-      return new Token({
-        address: temp.address,
-        name: "Saber sagaSOL-bSOL LP",
-        symbol: "sagaSOL-bSOL LP",
-        chainId: 101,
-        decimals: 9,
-        logoURI:
-          "https://arweave.net/Ww6DntHM7JSVZjKDg3nnh29xmaxZf2-PFU2tZG90js0",
-      });
-    }
-
-    return temp;
+    return token;
   },
   // these should never be stale, since token mints are immutable (other than supply)
   staleTime: Infinity,
@@ -292,6 +284,7 @@ export const useTokens = (
   mints?: (PublicKey | null | undefined)[],
   network: Network = "mainnet-beta",
 ) => {
+  const { connection } = useConnection();
   const { fetchKeys } = useSail();
   const normalizedMints = useNormalizedMints(mints);
   return useQueries({
@@ -300,6 +293,7 @@ export const useTokens = (
         network,
         address: mint,
         fetchKeys,
+        connection,
       });
     }),
   });
@@ -337,12 +331,14 @@ export const useToken = (
 ) => {
   const mint = usePubkey(mintRaw);
   const { fetchKeys } = useSail();
+  const { connection } = useConnection();
   const normalizedMint = useMemo(() => mapSome(mint, normalizeMint), [mint]);
   return useQuery(
     makeTokenQuery({
       network,
       address: normalizedMint,
       fetchKeys,
+      connection,
     }),
   );
 };
