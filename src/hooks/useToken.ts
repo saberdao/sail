@@ -240,6 +240,19 @@ export const makeTokenQuery = ({
       return tokenData.data;
     }
 
+    // Try Saber LP Token list
+    const lpTokenInfo = await fetchNullableWithSessionCache<
+      Record<string, TokenInfo>
+    >(
+      "https://raw.githubusercontent.com/saberdao/lp-token-list-v2/refs/heads/main/token-list.json",
+      signal,
+    );
+    console.log(lpTokenInfo);
+    if (lpTokenInfo !== null && lpTokenInfo[address.toString()] !== undefined) {
+      console.log("From JSON");
+      return new Token(lpTokenInfo[address.toString()]!);
+    }
+
     const metadata = await getTokenMetadataFromChain(connection, address);
 
     console.log(info);

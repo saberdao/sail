@@ -18,7 +18,7 @@ export const fetchNullable = async <T>(
 };
 
 const sessionCache: Record<string, unknown> = {};
-
+const sessionPromiseCache: Record<string, Promise<unknown>> = {};
 /**
  * Performs a GET request with a cache, returning `null` if 404.
  *
@@ -35,7 +35,12 @@ export const fetchNullableWithSessionCache = async <T>(
   if (sessionCache[url]) {
     return sessionCache[url] as T | null;
   }
-  const result = await fetchNullable<T>(url, signal);
+  if (sessionPromiseCache[url]) {
+    return (await sessionPromiseCache[url]) as T | null;
+  }
+  void signal;
+  sessionPromiseCache[url] = fetchNullable<T>(url);
+  const result = await sessionPromiseCache[url];
   sessionCache[url] = result;
-  return result;
+  return result as T | null;
 };
