@@ -5,7 +5,7 @@
  * trying to reference their stuff, I copied all of the minimum necessary code into this file
  */
 import { PublicKey } from "@solana/web3.js";
-import { BinaryReader, BinaryWriter, deserializeUnchecked } from "borsh";
+import { BinaryReader, BinaryWriter, deserializeUnchecked } from "borshv0";
 import base58 from "bs58";
 
 export const METADATA_PROGRAM_ID =

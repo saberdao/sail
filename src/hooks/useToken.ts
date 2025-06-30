@@ -177,7 +177,7 @@ const getTokenMetadataFromChain = async (
     const metadataAccountInfo = await connection.getAccountInfo(
       new PublicKey(metadataAccount),
     );
-    console.log(metadataAccountInfo);
+    console.log("metadata", metadataAccountInfo);
 
     // finally, decode metadata
     const data = decodeMetadata(metadataAccountInfo!.data);
@@ -228,7 +228,8 @@ export const makeTokenQuery = ({
       makeCertifiedTokenInfoURL(chainId, address.toString()),
       signal,
     );
-    if (info !== null) {
+    console.log('local working3')
+    if (info !== null && info.logoURI) {
       return new Token(info);
     }
     const [tokenData] = await fetchKeys([address]);
@@ -255,7 +256,18 @@ export const makeTokenQuery = ({
 
     const metadata = await getTokenMetadataFromChain(connection, address);
 
-    console.log(info);
+    // Explicit override for BLZE because it's not in the token list and has no metadata
+    if (address.toString() === "BLZE") {
+      return new Token({
+        address: address.toString(),
+        name: "BLZE",
+        symbol: "BLZE",
+        decimals: 9,
+        chainId: networkToChainId(network),
+        logoURI: "https://solblaze.org/assets/blze.png",
+      });
+    }
+
     if (metadata) {
       return new Token({
         address: address.toString(),
