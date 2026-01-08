@@ -168,6 +168,34 @@ export const makeBatchedTokensQuery = ({
   staleTime: Infinity,
 });
 
+const transformIrysUrl = (url: string): string => {
+  if (url.includes("irys.xyz")) {
+    return url.replace("irys.xyz", "irysnetwork.com");
+  }
+  return url;
+};
+
+const fetchWithIrysRetry = async <T>(url: string): Promise<T> => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return (await response.json()) as T;
+  } catch (error) {
+    // If the URL is irys.xyz and it failed, retry with irysnetwork.com
+    if (url.includes("irys.xyz")) {
+      const retryUrl = url.replace("irys.xyz", "irysnetwork.com");
+      const response = await fetch(retryUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return (await response.json()) as T;
+    }
+    throw error;
+  }
+};
+
 const getTokenMetadataFromChain = async (
   connection: Connection,
   mint: PublicKey,
@@ -183,9 +211,7 @@ const getTokenMetadataFromChain = async (
     const data = decodeMetadata(metadataAccountInfo!.data);
     const info = await connection.getParsedAccountInfo(mint);
 
-    const meta = (await (await fetch(data.data.uri)).json()) as {
-      image: string;
-    };
+    const meta = await fetchWithIrysRetry<{ image: string }>(data.data.uri);
     const result = {
       ...data,
       ...meta,
@@ -228,7 +254,6 @@ export const makeTokenQuery = ({
       makeCertifiedTokenInfoURL(chainId, address.toString()),
       signal,
     );
-    console.log('local working3')
     if (info !== null && info.logoURI) {
       return new Token(info);
     }
@@ -275,7 +300,7 @@ export const makeTokenQuery = ({
         symbol: metadata.data.symbol,
         decimals: metadata.decimals as number,
         chainId: networkToChainId(network),
-        logoURI: metadata.image,
+        logoURI: transformIrysUrl(metadata.image),
       });
     }
 
